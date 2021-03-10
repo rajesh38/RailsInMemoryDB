@@ -20,6 +20,7 @@ class Table
     validate_record_hash(record_hash)
     records << record_hash
     build_index_for_record(record_hash)
+    record_hash
   end
 
   def filter_by(column_name, value)

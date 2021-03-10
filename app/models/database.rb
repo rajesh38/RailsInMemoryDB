@@ -1,7 +1,9 @@
 class Database
   attr_accessor :name, :tables
+  attr_protected :create_table
 
-  def initialize
+  def initialize(name: nil)
+    self.name = name
     self.tables = {}
   end
 

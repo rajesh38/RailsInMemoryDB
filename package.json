@@ -1,5 +1,5 @@
 {
-  "name": "InMemoryDB",
+  "name": "RailsInMemoryDB",
   "private": true,
   "dependencies": {}
 }

@@ -1,19 +1,20 @@
 class Database
-  attr_accessor :name, :tables
-  attr_protected :create_table
+  attr_accessor :name, :persistent, :tables
 
-  def initialize(name: nil)
+  def initialize(name:, persistent: false)
     self.name = name
+    self.persistent = persistent
     self.tables = {}
   end
 
-  def create_table(table_entity)
-    validate_table_entity_for_create(table_entity)
-    table = Table.construct_from_entity(table_entity)
+  def create_table(table_entity:)
+    validate_table_entity_for_create(table_entity: table_entity)
+    table = Table.construct_from_entity(table_entity: table_entity)
     tables[table_entity[:name]] = table
+    table
   end
 
-  def drop_table(table_name)
+  def drop_table(table_name:)
     throw "Table not found" unless tables.key?(table_name)
     tables.delete(table_name)
   end
@@ -24,7 +25,7 @@ class Database
   end
 
   private
-  def validate_table_entity_for_create(table_entity)
+  def validate_table_entity_for_create(table_entity:)
     throw "Table already exists" if tables.key?(table_entity[:name])
   end
 end

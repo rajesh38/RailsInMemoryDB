@@ -1,0 +1,3 @@
+$DATA_STORE = {
+  "databases" => {}
+}

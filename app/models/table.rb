@@ -7,7 +7,7 @@ class Table
     self.indices = {}
   end
 
-  def self.construct_from_entity(table_entity)
+  def self.construct_from_entity(table_entity:)
     table = Table.new
     table.name = table_entity[:name]
     table_entity[:columns].each do |column_entity|

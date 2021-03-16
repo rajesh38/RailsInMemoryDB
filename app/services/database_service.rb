@@ -13,6 +13,8 @@ class DatabaseService
     return db
   end
 
+  # variable: store if optional; if store is mentioned
+  # it will only scan that store to get the db
   def self.find_db(db_name:, store: nil)
     unless store.nil?
       if store == $PERSISTENT_STORE_NAME
@@ -32,27 +34,38 @@ class DatabaseService
     db
   end
 
-  def self.create_table(db_name:, table_entity:, persistent: false)
-    db = find_db(db_name: db_name)
-    table = db.create_table(table_entity: table_entity) if db
-    if persistent
-      persistent_db = find_persistent_db(db_name: db_name)
-      raise "No persistent DB found with name: #{db_name}" unless persistent_db
-      create_persistent_table(persistent_db: persistent_db, table_entity: table_entity)
-    end
-    return table
-  end
-
   def self.drop_db(db_name:)
-    drop_persistent_db(db_name: db_name)
-    drop_in_memory_db(db_name: db_name) if find_db(db_name: db_name)
+    db_drop_stats = {}
+    db_drop_stats[:persistent] = drop_persistent_db(db_name: db_name)
+    db_drop_stats[:in_memory] = drop_in_memory_db(db_name: db_name)
+    db_drop_stats
   end
 
   def self.drop_persistent_db(db_name:)
-    db = find_persistent_db(db_name)
-    db.destroy if db
-    db_in_memory_store.delete(db_name)
-    return true
+    db = find_persistent_db(db_name: db_name)
+    if db
+      db.destroy
+      return true
+    end
+  end
+
+  def self.drop_in_memory_db(db_name:)
+    return true if find_db(db_name: db_name) && db_in_memory_store.delete(db_name)
+  end
+
+  def self.create_table(db_name:, table_entity:, persistent: false)
+    table = create_in_memory_table(db_name: db_name, table_entity: table_entity)
+    create_persistent_table(db_name: db_name, table_entity: table_entity) if persistent
+    return table
+  end
+
+  def create_in_memory_table(db_name:, table_entity:)
+    db = find_db(db_name: db_name)
+    table = db.create_table(table_entity: table_entity) if db
+  end
+
+  def self.find_table(db_name:, table_name:)
+    find_db(db_name: db_name)
   end
 
   def self.create_persistent_db(db_name:)
@@ -64,7 +77,9 @@ class DatabaseService
     Persistent::Database.find_by(name: db_name)
   end
 
-  def self.create_persistent_table(persistent_db:, table_entity:)
+  def self.create_persistent_table(db_name:, table_entity:)
+    persistent_db = find_persistent_db(db_name: db_name)
+    raise "No persistent DB found with name: #{db_name}" unless persistent_db
     table_entity = table_entity.with_indifferent_access
     if check_if_table_exists(db_object: persistent_db, table_name: table_entity["name"])
       throw "Table: #{table_entity["name"]} already exists in DB: #{persistent_db.name}"

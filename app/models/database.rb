@@ -30,6 +30,7 @@ class Database
 
   private
   def validate_table_entity_for_create(table_entity:)
-    throw "Table already exists" if tables.key?(table_entity[:name])
+    table_entity = table_entity.with_indifferent_access
+    throw "Table: #{table_entity["name"]} already exists in DB: #{name}" if tables.key?(table_entity[:name])
   end
 end

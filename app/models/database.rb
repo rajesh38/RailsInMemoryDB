@@ -24,6 +24,10 @@ class Database
     tables
   end
 
+  def create_persistent_db
+    DatabaseService.create_persistent_db(db_name: name)
+  end
+
   private
   def validate_table_entity_for_create(table_entity:)
     throw "Table already exists" if tables.key?(table_entity[:name])

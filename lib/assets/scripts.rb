@@ -6,5 +6,6 @@
 # emp.columns
 # emp.insert({"name": "Rajesh", id: 23})
 
+db = DatabaseService.find_db(db_name: "Organization")
 db = DatabaseService.create_db(db_name: "Organization", persistent: true)
 table = DatabaseService.create_table(db_name: "Organization", table_entity:{name: "Employee", columns: [{name: "name", type: "string", required: true}, {name: "id", type: "int", required: false}]}, persistent: true)
